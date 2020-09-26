@@ -8,8 +8,8 @@ Response = {
   1404 => ->(kid) {"講義ID「%d」は存在しません" % kid},
   2001 => ->(kid) {"「%s」の検索で接続エラーが発生しました" % kid},
   2404 => ->(kid) {"「%s」は見つかりませんでした" % kid},
-  3001 => "ユーザー「{0}」のお気に入りの取得で接続エラーが発生しました",
-  3404 => "ユーザー「{0}」のお気に入りはまだありません。",
+  3001 => ->(uid) {"ユーザー「%d」のお気に入りの取得で接続エラーが発生しました" % uid},
+  3404 => ->(uid) {"ユーザー「%d」のお気に入りはまだありません。" % uid},
   4001 => "{0}おみくじで接続エラーが発生しました",
   4002 => "{0}おみくじは存在しません",
   4404 => "{0}おみくじに該当する講義が見つかりませんでした"
@@ -25,7 +25,7 @@ def get_lecture_by_id(kid)
       res.result = Response[1404].call(kid)
     else
       res.result = "success"
-      res.rakutan = Rakutan.from_dict(dr.query_result.each.next)
+      res.rakutan = Rakutan::from_dict(dr.query_result.each.next)
     end
   else
     res.result = Response[1001].call(kid)
@@ -55,12 +55,37 @@ def get_lecture_by_search_word(search_word)
     else
       res.result = "success"
       res.count = dr.count
-      res.rakutan_list = Rakutan.from_list(dr.query_result.each)
+      res.rakutan_list = Rakutan::from_list(dr.query_result)
     end
   else
     res.result = Response[2001].call(search_word)
   end
 
   db.close
+  res
+end
+
+GetUserFavResult = Struct.new(:result, :count, :fav_list)
+
+def get_user_favorite(uid)
+  db = Database.new
+  query = {uid: uid}
+  dr = db.find('userfav', query)
+
+  res = GetUserFavResult.new
+
+  if dr.result == :success then
+    if count == 0 then
+      res.result = Response[3404].call(uid)
+    else
+      res.result = "success"
+      res.count = dr.count
+      res.fav_list = UserFav::from_list(dr.query_result)
+    end
+  else
+    res.result = Response[3001].call(uid)
+  end
+
+  dr.close
   res
 end

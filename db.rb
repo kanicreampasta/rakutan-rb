@@ -10,14 +10,16 @@ class Database
   end
 
   def self.use_db
+    ret = nil
     begin
       db = self.new
-      yield db
+      ret = yield db
     rescue => exception
       puts exception
     ensure
       db.close
     end
+    ret
   end
 
   @@FindResult = Struct.new("FindResult", :result, :count, :query_result)

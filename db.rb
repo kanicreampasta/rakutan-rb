@@ -9,6 +9,17 @@ class Database
     @client.close
   end
 
+  def self.use_db
+    begin
+      db = self.new
+      yield db
+    rescue => exception
+      puts exception
+    ensure
+      db.close
+    end
+  end
+
   @@FindResult = Struct.new("FindResult", :result, :count, :query_result)
 
   def find(col_name, query, projection)

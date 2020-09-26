@@ -20,7 +20,7 @@ class Rakutan
   end
 
   def self.from_list(lst)
-    lst.map(self.from_dict)
+    lst.map(&self.method(:from_dict))
   end
 
   def to_dict

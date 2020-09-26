@@ -70,7 +70,7 @@ GetUserFavResult = Struct.new(:result, :count, :fav_list)
 def get_user_favorite(uid)
   db = Database.new
   query = {uid: uid}
-  dr = db.find('userfav', query)
+  dr = db.find('userfav', query, nil)
 
   res = GetUserFavResult.new
 
@@ -87,5 +87,37 @@ def get_user_favorite(uid)
   end
 
   dr.close
+  res
+end
+
+def get_omikuji(omikuji_type)
+  db = Database.new
+  res = GetRakutanResult.new
+
+  if omikuji_type == :oni then
+    query = {'$and': [{'facultyname': '国際高等教育院'}, {'total_prev': {'$gt': 4}},
+      {'$expr': {'$lt': ['$accept_prev', {'$multiply': [0.31, '$total_prev']}]}}]}
+  elsif omikuji_type == :normal then
+    query = {'$and': [{'facultyname': '国際高等教育院'}, {'accept_prev': {'$gt': 15}},
+      {'$expr': {'$gt': ['$accept_prev', {'$multiply': [0.8, '$total_prev']}]}}]}
+  else
+    res.result = Response[4002].call(omikuji_type)
+    return res
+  end
+
+  dr = db.find("rakutan", query, nil)
+
+  if dr.result == :success then
+    if dr.count == 0 then
+      res.result = Response[4404].call(omikuji_type)
+    else
+      res.result = "success"
+      res.rakutan = Rakutan::from_list(dr.query_result).sample
+    end
+  else
+    res.result = Response[4001].call(omikuji_type)
+  end
+
+  db.close
   res
 end

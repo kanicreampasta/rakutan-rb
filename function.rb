@@ -17,7 +17,7 @@ Response = {
 
 def get_lecture_by_id(kid)
   db = Database.new
-  dr = db.find("rakutan2020", {lecID: kid}, nil)
+  dr = db.find("rakutan2020", {lecID: kid.to_i}, nil)
   res = GetRakutanResult.new
   
   if dr.result == :success then

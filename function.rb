@@ -17,7 +17,7 @@ Response = {
 
 def get_lecture_by_id(kid)
   db = Database.new
-  dr = db.find("rakutan", {id: kid}, nil)
+  dr = db.find("rakutan2020", {lecID: kid.to_i}, nil)
   res = GetRakutanResult.new
   
   if dr.result == :success then
@@ -41,12 +41,12 @@ def get_lecture_by_search_word(search_word)
   db = Database.new
 
   if search_word[0] == "%" then
-    query = {"lecturename": {"$regex": search_word[1..-1], "$options": "i"}}
+    query = {"lectureName": {"$regex": search_word[1..-1], "$options": "i"}}
   else
-    query = {"lecturename": {"$regex": "^%s" % search_word, "$options": "i"}}
+    query = {"lectureName": {"$regex": "^%s" % search_word, "$options": "i"}}
   end
 
-  dr = db.find("rakutan", query, {_id: false})
+  dr = db.find("rakutan2020", query, {_id: false})
 
   res = GetRakutansResult.new
   if dr.result == :success then
@@ -95,17 +95,17 @@ def get_omikuji(omikuji_type)
   res = GetRakutanResult.new
 
   if omikuji_type == :oni then
-    query = {'$and': [{'facultyname': '国際高等教育院'}, {'total_prev': {'$gt': 4}},
-      {'$expr': {'$lt': ['$accept_prev', {'$multiply': [0.31, '$total_prev']}]}}]}
+    query = {'$and': [{'facultyName': '国際高等教育院'}, {'total.0': {'$gt': 4}},
+      {'$expr': {'$lt': [{'$arrayElemAt': ['$accepted', 0]}, {'$multiply': [0.31, {'$arrayElemAt': ['$total', 0]}]}]}}]}
   elsif omikuji_type == :normal then
-    query = {'$and': [{'facultyname': '国際高等教育院'}, {'accept_prev': {'$gt': 15}},
-      {'$expr': {'$gt': ['$accept_prev', {'$multiply': [0.8, '$total_prev']}]}}]}
+    query = {'$and': [{'facultyName': '国際高等教育院'}, {'accepted.0': {'$gt': 15}},
+      {'$expr': {'$gt': [{'$arrayElemAt': ['$accepted', 0]}, {'$multiply': [0.8, {'$arrayElemAt': ['$total', 0]}]}]}}]}
   else
     res.result = Response[4002].call(omikuji_type)
     return res
   end
 
-  dr = db.find("rakutan", query, nil)
+  dr = db.find("rakutan2020", query, nil)
 
   if dr.result == :success then
     if dr.count == 0 then

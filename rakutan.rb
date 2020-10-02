@@ -13,10 +13,8 @@ class Rakutan
   attr_accessor :lec_id, :faculty_name, :lecture_name, :groups, :credits, :accepted, :total, :url
 
   def self.from_dict(db)
-    self.new(db["id"], db["facultyname"], db["lecturename"], db["groups"],
-             db["credits"], [db["accept_prev"], db["accept_prev2"], db["accept_prev3"]],
-             [db["total_prev"], db["total_prev2"], db["total_prev3"]],
-             db["url"])
+    self.new(db["lecID"], db["facultyName"], db["lectureName"], db["groups"],
+             db["credits"], db["accepted"], db["total"], db["url"])
   end
 
   def self.from_list(lst)
@@ -45,7 +43,7 @@ class UserFav
   end
 
   def self.from_dict(dic)
-    self.new(dic["uid"], dic["lectureid"], dic["lecturename"])
+    self.new(dic["uid"], dic["lecID"], dic["lectureName"])
   end
 
   def self.from_list(lst)

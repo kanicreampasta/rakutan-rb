@@ -141,3 +141,19 @@ def get_omikuji(omikuji_type)
   db.close
   res
 end
+
+def add_kakomon_url(uid, lec_id, url)
+
+end
+
+def delete_kakomon_url(lec_id, url)
+
+end
+
+def add_users(uid)
+
+end
+
+def update_users(uid)
+
+end
